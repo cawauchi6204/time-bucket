@@ -4,6 +4,8 @@ import '../../../data/providers/bucket_provider.dart';
 import '../../../data/models/time_bucket.dart';
 import '../../../data/repositories/experience_repository.dart';
 import '../../../data/models/experience.dart';
+import '../../widgets/common/icon_picker.dart';
+import '../../widgets/common/bucket_icon.dart';
 
 class BucketsScreen extends ConsumerStatefulWidget {
   const BucketsScreen({super.key});
@@ -20,6 +22,7 @@ class _BucketsScreenState extends ConsumerState<BucketsScreen> {
   final _startAgeController = TextEditingController();
   final _endAgeController = TextEditingController();
   Color _selectedColor = Colors.blue;
+  String? _selectedIconPath;
   bool _isLoading = false;
 
   final List<Color> _availableColors = [
@@ -163,8 +166,9 @@ class _BucketsScreenState extends ConsumerState<BucketsScreen> {
 
   Widget _buildInlineCreateForm() {
     return Container(
-      margin: const EdgeInsets.all(20),
-      padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
+      height: MediaQuery.of(context).size.height * 0.7,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -178,192 +182,203 @@ class _BucketsScreenState extends ConsumerState<BucketsScreen> {
       ),
       child: Form(
         key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Create New Bucket',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: Colors.black87,
-              ),
-            ),
-            const SizedBox(height: 20),
-            TextFormField(
-              controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: 'Bucket Name *',
-                hintText: 'e.g., College Years, Career Building',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Create New Bucket',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
                 ),
-                contentPadding: EdgeInsets.all(16),
               ),
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'Please enter a bucket name';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _descriptionController,
-              maxLines: 2,
-              decoration: const InputDecoration(
-                labelText: 'Description',
-                hintText: 'What do you want to achieve during this time?',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                ),
-                contentPadding: EdgeInsets.all(16),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    controller: _startAgeController,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      labelText: 'Start Age *',
-                      hintText: '18',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(12)),
-                      ),
-                      contentPadding: EdgeInsets.all(16),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Required';
-                      }
-                      final age = int.tryParse(value);
-                      if (age == null || age < 0 || age > 120) {
-                        return 'Invalid age';
-                      }
-                      return null;
-                    },
+              const SizedBox(height: 20),
+              TextFormField(
+                controller: _nameController,
+                decoration: const InputDecoration(
+                  labelText: 'Bucket Name *',
+                  hintText: 'e.g., College Years, Career Building',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12)),
                   ),
+                  contentPadding: EdgeInsets.all(16),
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: TextFormField(
-                    controller: _endAgeController,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      labelText: 'End Age *',
-                      hintText: '25',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(12)),
-                      ),
-                      contentPadding: EdgeInsets.all(16),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Required';
-                      }
-                      final age = int.tryParse(value);
-                      if (age == null || age < 0 || age > 120) {
-                        return 'Invalid age';
-                      }
-                      final startAge = int.tryParse(_startAgeController.text);
-                      if (startAge != null && age <= startAge) {
-                        return 'Must be > start age';
-                      }
-                      return null;
-                    },
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'Choose Color',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: Colors.black87,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Please enter a bucket name';
+                  }
+                  return null;
+                },
               ),
-            ),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 12,
-              children: _availableColors.map((color) {
-                final isSelected = color == _selectedColor;
-                return GestureDetector(
-                  onTap: () => setState(() => _selectedColor = color),
-                  child: Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: color,
-                      borderRadius: BorderRadius.circular(8),
-                      border: isSelected
-                          ? Border.all(color: Colors.black54, width: 2)
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _descriptionController,
+                maxLines: 2,
+                decoration: const InputDecoration(
+                  labelText: 'Description',
+                  hintText: 'What do you want to achieve during this time?',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                  ),
+                  contentPadding: EdgeInsets.all(16),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: _startAgeController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        labelText: 'Start Age *',
+                        hintText: '18',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(12)),
+                        ),
+                        contentPadding: EdgeInsets.all(16),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'Required';
+                        }
+                        final age = int.tryParse(value);
+                        if (age == null || age < 0 || age > 120) {
+                          return 'Invalid age';
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: TextFormField(
+                      controller: _endAgeController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        labelText: 'End Age *',
+                        hintText: '25',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(12)),
+                        ),
+                        contentPadding: EdgeInsets.all(16),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'Required';
+                        }
+                        final age = int.tryParse(value);
+                        if (age == null || age < 0 || age > 120) {
+                          return 'Invalid age';
+                        }
+                        final startAge = int.tryParse(_startAgeController.text);
+                        if (startAge != null && age <= startAge) {
+                          return 'Must be > start age';
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                'Choose Color',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 12,
+                children: _availableColors.map((color) {
+                  final isSelected = color == _selectedColor;
+                  return GestureDetector(
+                    onTap: () => setState(() => _selectedColor = color),
+                    child: Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: color,
+                        borderRadius: BorderRadius.circular(8),
+                        border: isSelected
+                            ? Border.all(color: Colors.black54, width: 2)
+                            : null,
+                      ),
+                      child: isSelected
+                          ? const Icon(
+                              Icons.check,
+                              color: Colors.white,
+                              size: 16,
+                            )
                           : null,
                     ),
-                    child: isSelected
-                        ? const Icon(
-                            Icons.check,
-                            color: Colors.white,
-                            size: 16,
-                          )
-                        : null,
-                  ),
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: _cancelBucketCreation,
-                    style: OutlinedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 20),
+              IconPicker(
+                currentImagePath: _selectedIconPath,
+                onImageSelected: (iconPath) {
+                  setState(() {
+                    _selectedIconPath = iconPath;
+                  });
+                },
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: _cancelBucketCreation,
+                      style: OutlinedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      child: const Text('Cancel'),
                     ),
-                    child: const Text('Cancel'),
                   ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: _isLoading ? null : _saveBucket,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _selectedColor,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: _isLoading ? null : _saveBucket,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _selectedColor,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      child: _isLoading
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor:
+                                    AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                            )
+                          : const Text(
+                              'Create Bucket',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                     ),
-                    child: _isLoading
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(Colors.white),
-                            ),
-                          )
-                        : const Text(
-                            'Create Bucket',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -423,14 +438,15 @@ class _BucketsScreenState extends ConsumerState<BucketsScreen> {
                           color: bgColor,
                           borderRadius: BorderRadius.circular(16),
                         ),
-                        child: Icon(
-                          isActive
+                        child: BucketIcon(
+                          iconPath: bucket.iconPath,
+                          color: color,
+                          size: 28,
+                          fallbackIcon: isActive
                               ? Icons.folder_open
                               : isFuture
                                   ? Icons.folder_outlined
                                   : Icons.folder,
-                          color: color,
-                          size: 28,
                         ),
                       ),
                       if (isActive)
@@ -664,6 +680,7 @@ class _BucketsScreenState extends ConsumerState<BucketsScreen> {
       _startAgeController.clear();
       _endAgeController.clear();
       _selectedColor = Colors.blue;
+      _selectedIconPath = null;
     });
   }
 
@@ -682,6 +699,7 @@ class _BucketsScreenState extends ConsumerState<BucketsScreen> {
             ? null
             : _descriptionController.text.trim(),
         color: '#${_selectedColor.value.toRadixString(16).substring(2)}',
+        iconPath: _selectedIconPath,
         orderIndex: 0,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
@@ -758,10 +776,11 @@ class _BucketsScreenState extends ConsumerState<BucketsScreen> {
                               color: color.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(16),
                             ),
-                            child: Icon(
-                              Icons.folder,
+                            child: BucketIcon(
+                              iconPath: bucket.iconPath,
                               color: color,
                               size: 30,
+                              fallbackIcon: Icons.folder,
                             ),
                           ),
                           const SizedBox(width: 16),
@@ -1063,12 +1082,22 @@ class _BucketsScreenState extends ConsumerState<BucketsScreen> {
                       .withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(
-                  Icons.explore,
-                  color: Color(int.parse(
-                      bucket.color?.replaceFirst('#', '0xFF') ?? '0xFF2196F3')),
-                  size: 20,
-                ),
+                child: bucket.iconPath != null
+                    ? BucketIcon(
+                        iconPath: bucket.iconPath,
+                        color: Color(int.parse(
+                            bucket.color?.replaceFirst('#', '0xFF') ??
+                                '0xFF2196F3')),
+                        size: 20,
+                        fallbackIcon: Icons.explore,
+                      )
+                    : Icon(
+                        Icons.explore,
+                        color: Color(int.parse(
+                            bucket.color?.replaceFirst('#', '0xFF') ??
+                                '0xFF2196F3')),
+                        size: 20,
+                      ),
               ),
               const SizedBox(width: 12),
               Expanded(

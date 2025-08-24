@@ -19,7 +19,7 @@ class DatabaseHelper {
     final String path = join(await getDatabasesPath(), 'timebucket.db');
     return await openDatabase(
       path,
-      version: 2,
+      version: 3,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -35,6 +35,7 @@ class DatabaseHelper {
         end_age INTEGER NOT NULL,
         description TEXT,
         color TEXT,
+        icon_path TEXT,
         order_index INTEGER DEFAULT 0,
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL
@@ -121,6 +122,11 @@ class DatabaseHelper {
 
       // Recreate tables
       await _onCreate(db, newVersion);
+    }
+
+    if (oldVersion < 3) {
+      // Add icon_path column to time_buckets table
+      await db.execute('ALTER TABLE time_buckets ADD COLUMN icon_path TEXT');
     }
   }
 

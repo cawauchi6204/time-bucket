@@ -8,6 +8,7 @@ class TimeBucket extends Equatable {
   final int endAge;
   final String? description;
   final String? color;
+  final String? iconPath;
   final int orderIndex;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -19,6 +20,7 @@ class TimeBucket extends Equatable {
     required this.endAge,
     this.description,
     this.color,
+    this.iconPath,
     this.orderIndex = 0,
     required this.createdAt,
     required this.updatedAt,
@@ -47,6 +49,7 @@ class TimeBucket extends Equatable {
       'end_age': endAge,
       'description': description,
       'color': color,
+      'icon_path': iconPath,
       'order_index': orderIndex,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
@@ -61,6 +64,7 @@ class TimeBucket extends Equatable {
       endAge: map['end_age'] as int,
       description: map['description'] as String?,
       color: map['color'] as String?,
+      iconPath: map['icon_path'] as String?,
       orderIndex: map['order_index'] as int? ?? 0,
       createdAt: DateTime.parse(map['created_at'] as String),
       updatedAt: DateTime.parse(map['updated_at'] as String),
@@ -74,6 +78,7 @@ class TimeBucket extends Equatable {
     int? endAge,
     String? description,
     String? color,
+    String? iconPath,
     int? orderIndex,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -85,6 +90,7 @@ class TimeBucket extends Equatable {
       endAge: endAge ?? this.endAge,
       description: description ?? this.description,
       color: color ?? this.color,
+      iconPath: iconPath ?? this.iconPath,
       orderIndex: orderIndex ?? this.orderIndex,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -99,6 +105,7 @@ class TimeBucket extends Equatable {
         endAge,
         description,
         color,
+        iconPath,
         orderIndex,
         createdAt,
         updatedAt,
