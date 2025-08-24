@@ -46,9 +46,6 @@ class HeroBucketCard extends StatelessWidget {
               // Gradient Overlay
               _buildGradientOverlay(),
               
-              // Active Border
-              if (isActive) _buildActiveBorder(),
-              
               // Content Overlay
               _buildContentOverlay(context),
             ],
@@ -121,20 +118,6 @@ class HeroBucketCard extends StatelessWidget {
               Colors.black.withOpacity(0.7),
             ],
             stops: const [0.0, 0.5, 1.0],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildActiveBorder() {
-    return Positioned.fill(
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
-          border: Border.all(
-            color: bucket.bucketColor,
-            width: 3,
           ),
         ),
       ),
