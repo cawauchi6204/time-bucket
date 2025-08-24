@@ -16,7 +16,7 @@ class _AuthScreenState extends State<AuthScreen> {
   final _passwordController = TextEditingController();
   final _nameController = TextEditingController();
   DateTime? _selectedBirthDate;
-  
+
   bool _isLogin = true;
   bool _isLoading = false;
 
@@ -39,7 +39,8 @@ class _AuthScreenState extends State<AuthScreen> {
       context: context,
       initialDate: DateTime(1990),
       firstDate: DateTime(1940),
-      lastDate: DateTime.now().subtract(const Duration(days: 365 * 13)), // At least 13 years old
+      lastDate: DateTime.now()
+          .subtract(const Duration(days: 365 * 13)), // At least 13 years old
     );
     if (picked != null) {
       setState(() {
@@ -82,13 +83,13 @@ class _AuthScreenState extends State<AuthScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const SizedBox(height: AppTheme.spacingXL),
-                
+
                 // App Logo/Title
                 Text(
                   'TimeBucket',
                   style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                    color: AppTheme.primaryPink,
-                  ),
+                        color: AppTheme.primaryPink,
+                      ),
                 ),
                 const SizedBox(height: AppTheme.spacingS),
                 Text(
@@ -96,9 +97,9 @@ class _AuthScreenState extends State<AuthScreen> {
                   style: Theme.of(context).textTheme.bodyLarge,
                   textAlign: TextAlign.center,
                 ),
-                
+
                 const SizedBox(height: AppTheme.spacingXL * 2),
-                
+
                 // Form Fields
                 if (!_isLogin) ...[
                   TextFormField(
@@ -116,7 +117,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   ),
                   const SizedBox(height: AppTheme.spacingM),
                 ],
-                
+
                 TextFormField(
                   controller: _emailController,
                   decoration: const InputDecoration(
@@ -134,9 +135,9 @@ class _AuthScreenState extends State<AuthScreen> {
                     return null;
                   },
                 ),
-                
+
                 const SizedBox(height: AppTheme.spacingM),
-                
+
                 TextFormField(
                   controller: _passwordController,
                   decoration: const InputDecoration(
@@ -154,7 +155,7 @@ class _AuthScreenState extends State<AuthScreen> {
                     return null;
                   },
                 ),
-                
+
                 if (!_isLogin) ...[
                   const SizedBox(height: AppTheme.spacingM),
                   InkWell(
@@ -164,7 +165,8 @@ class _AuthScreenState extends State<AuthScreen> {
                       padding: const EdgeInsets.all(AppTheme.spacingM),
                       decoration: BoxDecoration(
                         color: AppTheme.lightGray,
-                        borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
+                        borderRadius:
+                            BorderRadius.circular(AppTheme.borderRadiusSmall),
                       ),
                       child: Row(
                         children: [
@@ -185,9 +187,9 @@ class _AuthScreenState extends State<AuthScreen> {
                     ),
                   ),
                 ],
-                
+
                 const SizedBox(height: AppTheme.spacingXL),
-                
+
                 // Submit Button
                 SizedBox(
                   width: double.infinity,
@@ -199,9 +201,9 @@ class _AuthScreenState extends State<AuthScreen> {
                         : Text(_isLogin ? 'Sign In' : 'Create Account'),
                   ),
                 ),
-                
+
                 const SizedBox(height: AppTheme.spacingM),
-                
+
                 // Toggle Auth Mode
                 TextButton(
                   onPressed: _toggleAuthMode,

@@ -4,14 +4,14 @@ import 'package:go_router/go_router.dart';
 import '../../../data/models/experience.dart';
 import '../../../data/models/time_bucket.dart';
 import '../../../data/providers/bucket_provider.dart';
-import '../../../data/providers/user_provider.dart';
 import '../../../data/repositories/experience_repository.dart';
 
 class AddExperienceScreen extends ConsumerStatefulWidget {
   const AddExperienceScreen({super.key});
 
   @override
-  ConsumerState<AddExperienceScreen> createState() => _AddExperienceScreenState();
+  ConsumerState<AddExperienceScreen> createState() =>
+      _AddExperienceScreenState();
 }
 
 class _AddExperienceScreenState extends ConsumerState<AddExperienceScreen> {
@@ -20,7 +20,7 @@ class _AddExperienceScreenState extends ConsumerState<AddExperienceScreen> {
   final _descriptionController = TextEditingController();
   final _costController = TextEditingController();
   final _timeController = TextEditingController();
-  
+
   String? _selectedBucketId;
   int _selectedEnergy = 3;
   bool _isLoading = false;
@@ -38,15 +38,7 @@ class _AddExperienceScreenState extends ConsumerState<AddExperienceScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final currentUser = ref.watch(currentUserProvider);
-    
-    if (currentUser == null) {
-      return const Scaffold(
-        body: Center(child: Text('Please log in to create experiences')),
-      );
-    }
-
-    final bucketsAsync = ref.watch(userBucketsProvider(currentUser.id));
+    final bucketsAsync = ref.watch(bucketsProvider);
 
     return Scaffold(
       backgroundColor: Colors.grey[50],
@@ -83,21 +75,16 @@ class _AddExperienceScreenState extends ConsumerState<AddExperienceScreen> {
           children: [
             _buildSectionTitle('Experience Details'),
             const SizedBox(height: 16),
-            
             _buildTitleField(),
             const SizedBox(height: 20),
-            
             _buildDescriptionField(),
             const SizedBox(height: 32),
-            
             _buildSectionTitle('Bucket Assignment'),
             const SizedBox(height: 16),
             _buildBucketDropdown(buckets),
             const SizedBox(height: 32),
-            
             _buildSectionTitle('Resource Requirements'),
             const SizedBox(height: 16),
-            
             Row(
               children: [
                 Expanded(child: _buildCostField()),
@@ -106,10 +93,8 @@ class _AddExperienceScreenState extends ConsumerState<AddExperienceScreen> {
               ],
             ),
             const SizedBox(height: 20),
-            
             _buildEnergySelector(),
             const SizedBox(height: 40),
-            
             _buildSaveButton(),
           ],
         ),
@@ -465,15 +450,9 @@ class _AddExperienceScreenState extends ConsumerState<AddExperienceScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final currentUser = ref.read(currentUserProvider);
-      if (currentUser == null) {
-        throw Exception('No user logged in');
-      }
-
       final experience = Experience(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         bucketId: _selectedBucketId!,
-        userId: currentUser.id,
         title: _titleController.text.trim(),
         description: _descriptionController.text.trim().isEmpty
             ? null
@@ -491,13 +470,14 @@ class _AddExperienceScreenState extends ConsumerState<AddExperienceScreen> {
       );
 
       await _experienceRepository.createExperience(experience);
-      
+
       if (mounted) {
         context.pop();
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Experience "${experience.title}" created successfully!'),
+            content:
+                Text('Experience "${experience.title}" created successfully!'),
             backgroundColor: Colors.blue,
             behavior: SnackBarBehavior.floating,
           ),

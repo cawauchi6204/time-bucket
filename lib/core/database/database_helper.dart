@@ -19,32 +19,17 @@ class DatabaseHelper {
     final String path = join(await getDatabasesPath(), 'timebucket.db');
     return await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
   }
 
   Future<void> _onCreate(Database db, int version) async {
-    // Users table
-    await db.execute('''
-      CREATE TABLE users (
-        id TEXT PRIMARY KEY,
-        email TEXT NOT NULL UNIQUE,
-        name TEXT NOT NULL,
-        birth_date TEXT NOT NULL,
-        subscription_type TEXT DEFAULT 'free',
-        subscription_expiry TEXT,
-        created_at TEXT NOT NULL,
-        updated_at TEXT NOT NULL
-      )
-    ''');
-
     // Time buckets table
     await db.execute('''
       CREATE TABLE time_buckets (
         id TEXT PRIMARY KEY,
-        user_id TEXT NOT NULL,
         name TEXT NOT NULL,
         start_age INTEGER NOT NULL,
         end_age INTEGER NOT NULL,
@@ -52,8 +37,7 @@ class DatabaseHelper {
         color TEXT,
         order_index INTEGER DEFAULT 0,
         created_at TEXT NOT NULL,
-        updated_at TEXT NOT NULL,
-        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+        updated_at TEXT NOT NULL
       )
     ''');
 
@@ -62,7 +46,6 @@ class DatabaseHelper {
       CREATE TABLE experiences (
         id TEXT PRIMARY KEY,
         bucket_id TEXT NOT NULL,
-        user_id TEXT NOT NULL,
         title TEXT NOT NULL,
         description TEXT,
         estimated_cost REAL DEFAULT 0,
@@ -73,8 +56,7 @@ class DatabaseHelper {
         order_index INTEGER DEFAULT 0,
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL,
-        FOREIGN KEY (bucket_id) REFERENCES time_buckets (id) ON DELETE CASCADE,
-        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+        FOREIGN KEY (bucket_id) REFERENCES time_buckets (id) ON DELETE CASCADE
       )
     ''');
 
@@ -82,7 +64,6 @@ class DatabaseHelper {
     await db.execute('''
       CREATE TABLE journal_entries (
         id TEXT PRIMARY KEY,
-        user_id TEXT NOT NULL,
         experience_id TEXT,
         bucket_id TEXT,
         content TEXT NOT NULL,
@@ -90,7 +71,6 @@ class DatabaseHelper {
         media_urls TEXT,
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL,
-        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
         FOREIGN KEY (experience_id) REFERENCES experiences (id) ON DELETE SET NULL,
         FOREIGN KEY (bucket_id) REFERENCES time_buckets (id) ON DELETE SET NULL
       )
@@ -100,13 +80,11 @@ class DatabaseHelper {
     await db.execute('''
       CREATE TABLE life_resources (
         id TEXT PRIMARY KEY,
-        user_id TEXT NOT NULL,
         health_score INTEGER DEFAULT 50,
         time_score INTEGER DEFAULT 50,
         money_score INTEGER DEFAULT 50,
         recorded_at TEXT NOT NULL,
-        created_at TEXT NOT NULL,
-        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+        created_at TEXT NOT NULL
       )
     ''');
 
@@ -115,30 +93,35 @@ class DatabaseHelper {
       CREATE TABLE memory_dividends (
         id TEXT PRIMARY KEY,
         experience_id TEXT NOT NULL,
-        user_id TEXT NOT NULL,
         dividend_type TEXT NOT NULL,
         content_url TEXT,
         description TEXT,
         emotional_value INTEGER DEFAULT 3,
         created_at TEXT NOT NULL,
-        FOREIGN KEY (experience_id) REFERENCES experiences (id) ON DELETE CASCADE,
-        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+        FOREIGN KEY (experience_id) REFERENCES experiences (id) ON DELETE CASCADE
       )
     ''');
 
     // Create indexes for better performance
-    await db.execute('CREATE INDEX idx_buckets_user ON time_buckets(user_id)');
-    await db.execute('CREATE INDEX idx_experiences_bucket ON experiences(bucket_id)');
-    await db.execute('CREATE INDEX idx_experiences_user ON experiences(user_id)');
-    await db.execute('CREATE INDEX idx_journal_user ON journal_entries(user_id)');
-    await db.execute('CREATE INDEX idx_resources_user ON life_resources(user_id)');
-    await db.execute('CREATE INDEX idx_dividends_experience ON memory_dividends(experience_id)');
+    await db.execute(
+        'CREATE INDEX idx_experiences_bucket ON experiences(bucket_id)');
+    await db.execute(
+        'CREATE INDEX idx_dividends_experience ON memory_dividends(experience_id)');
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
-    // Handle database migrations here
-    // For now, we'll just recreate the database
-    // In production, you'd want to handle data migration properly
+    if (oldVersion < 2) {
+      // Drop all tables and recreate
+      await db.execute('DROP TABLE IF EXISTS users');
+      await db.execute('DROP TABLE IF EXISTS life_resources');
+      await db.execute('DROP TABLE IF EXISTS memory_dividends');
+      await db.execute('DROP TABLE IF EXISTS journal_entries');
+      await db.execute('DROP TABLE IF EXISTS experiences');
+      await db.execute('DROP TABLE IF EXISTS time_buckets');
+
+      // Recreate tables
+      await _onCreate(db, newVersion);
+    }
   }
 
   Future<void> close() async {

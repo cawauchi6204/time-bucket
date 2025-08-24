@@ -10,7 +10,8 @@ class ExperiencesScreen extends StatefulWidget {
   State<ExperiencesScreen> createState() => _ExperiencesScreenState();
 }
 
-class _ExperiencesScreenState extends State<ExperiencesScreen> with SingleTickerProviderStateMixin {
+class _ExperiencesScreenState extends State<ExperiencesScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -86,7 +87,7 @@ class _ExperiencesScreenState extends State<ExperiencesScreen> with SingleTicker
 
   Widget _buildExperiencesList(String status) {
     final experiences = _getMockExperiences(status);
-    
+
     if (experiences.isEmpty) {
       return Center(
         child: Column(
@@ -101,15 +102,15 @@ class _ExperiencesScreenState extends State<ExperiencesScreen> with SingleTicker
             Text(
               'No ${status.replaceAll('_', ' ')} experiences',
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                color: Colors.grey.shade600,
-              ),
+                    color: Colors.grey.shade600,
+                  ),
             ),
             const SizedBox(height: AppTheme.spacingS),
             Text(
               'Tap the + button to add your first experience',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Colors.grey.shade500,
-              ),
+                    color: Colors.grey.shade500,
+                  ),
             ),
           ],
         ),
@@ -126,7 +127,8 @@ class _ExperiencesScreenState extends State<ExperiencesScreen> with SingleTicker
     );
   }
 
-  Widget _buildExperienceCard(BuildContext context, Map<String, dynamic> experience) {
+  Widget _buildExperienceCard(
+      BuildContext context, Map<String, dynamic> experience) {
     return Card(
       margin: const EdgeInsets.only(bottom: AppTheme.spacingM),
       child: InkWell(
@@ -146,14 +148,15 @@ class _ExperiencesScreenState extends State<ExperiencesScreen> with SingleTicker
                       padding: const EdgeInsets.all(AppTheme.spacingXS),
                       decoration: BoxDecoration(
                         color: experience['bucketColor'].withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
+                        borderRadius:
+                            BorderRadius.circular(AppTheme.borderRadiusSmall),
                       ),
                       child: Text(
                         experience['bucket'],
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: experience['bucketColor'],
-                          fontWeight: FontWeight.w600,
-                        ),
+                              color: experience['bucketColor'],
+                              fontWeight: FontWeight.w600,
+                            ),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -181,9 +184,12 @@ class _ExperiencesScreenState extends State<ExperiencesScreen> with SingleTicker
                 spacing: AppTheme.spacingM,
                 runSpacing: AppTheme.spacingS,
                 children: [
-                  _buildMetric(context, Icons.attach_money, '\$${experience['cost']}'),
-                  _buildMetric(context, Icons.energy_savings_leaf, '${experience['energy']}/5'),
-                  _buildMetric(context, Icons.schedule, '${experience['time']}h'),
+                  _buildMetric(
+                      context, Icons.attach_money, '\$${experience['cost']}'),
+                  _buildMetric(context, Icons.energy_savings_leaf,
+                      '${experience['energy']}/5'),
+                  _buildMetric(
+                      context, Icons.schedule, '${experience['time']}h'),
                 ],
               ),
               if (experience['status'] != 'planned') ...[
@@ -191,14 +197,15 @@ class _ExperiencesScreenState extends State<ExperiencesScreen> with SingleTicker
                 LinearProgressIndicator(
                   value: experience['progress'],
                   backgroundColor: AppTheme.lightGray,
-                  valueColor: AlwaysStoppedAnimation<Color>(experience['bucketColor']),
+                  valueColor:
+                      AlwaysStoppedAnimation<Color>(experience['bucketColor']),
                 ),
                 const SizedBox(height: AppTheme.spacingXS),
                 Text(
                   '${(experience['progress'] * 100).toInt()}% complete',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey.shade600,
-                  ),
+                        color: Colors.grey.shade600,
+                      ),
                 ),
               ],
             ],
@@ -221,8 +228,8 @@ class _ExperiencesScreenState extends State<ExperiencesScreen> with SingleTicker
         Text(
           value,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: Colors.grey.shade600,
-          ),
+                color: Colors.grey.shade600,
+              ),
         ),
       ],
     );
@@ -234,7 +241,8 @@ class _ExperiencesScreenState extends State<ExperiencesScreen> with SingleTicker
         return [
           {
             'title': 'Learn Japanese Language',
-            'description': 'Take conversational Japanese lessons and pass JLPT N4',
+            'description':
+                'Take conversational Japanese lessons and pass JLPT N4',
             'bucket': '20s',
             'bucketColor': AppTheme.primaryPink,
             'cost': 500,
@@ -245,7 +253,8 @@ class _ExperiencesScreenState extends State<ExperiencesScreen> with SingleTicker
           },
           {
             'title': 'Visit Tokyo',
-            'description': 'Two-week trip to explore Japan and practice Japanese',
+            'description':
+                'Two-week trip to explore Japan and practice Japanese',
             'bucket': '20s',
             'bucketColor': AppTheme.primaryPink,
             'cost': 3000,
@@ -298,7 +307,6 @@ class _ExperiencesScreenState extends State<ExperiencesScreen> with SingleTicker
         return [];
     }
   }
-
 
   void _showExperienceOptions(BuildContext context) {
     showModalBottomSheet(

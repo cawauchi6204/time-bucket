@@ -17,7 +17,6 @@ class _JournalScreenState extends State<JournalScreen> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,108 +41,108 @@ class _JournalScreenState extends State<JournalScreen> {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
-                  children: [
-                    if (_searchQuery.isNotEmpty) ...[
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 10,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: TextField(
-                          controller: _searchController,
-                          decoration: InputDecoration(
-                            hintText: 'Search journal',
-                            prefixIcon: const Icon(Icons.search, color: Colors.grey),
-                            border: InputBorder.none,
-                            suffixIcon: IconButton(
-                              icon: const Icon(Icons.clear),
-                              onPressed: () {
-                                setState(() {
-                                  _searchController.clear();
-                                  _searchQuery = '';
-                                });
-                              },
-                            ),
-                          ),
-                          onChanged: (value) {
-                            setState(() {
-                              _searchQuery = value;
-                            });
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                    ],
-                    
-                    // Today section
-                    const Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Today',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
-                      ),
+          children: [
+            if (_searchQuery.isNotEmpty) ...[
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 2),
                     ),
-                    const SizedBox(height: 16),
-                    
-                    _buildJournalItem(
-                      'Evening Reflections',
-                      'Reflections on the day\'s events and personal growth.',
-                      Icons.edit,
-                      Colors.blue.shade100,
-                      Colors.blue,
+                  ],
+                ),
+                child: TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    hintText: 'Search journal',
+                    prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                    border: InputBorder.none,
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.clear),
+                      onPressed: () {
+                        setState(() {
+                          _searchController.clear();
+                          _searchQuery = '';
+                        });
+                      },
                     ),
-                    const SizedBox(height: 12),
-                    _buildJournalItem(
-                      'Emotion Tracker',
-                      'How are you feeling today? Log your mood.',
-                      Icons.emoji_emotions,
-                      Colors.pink.shade100,
-                      Colors.pink,
-                    ),
-                    
-                    const SizedBox(height: 32),
-                    
-                    // Yesterday section
-                    const Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Yesterday',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    
-                    _buildJournalItem(
-                      'Morning Musings',
-                      'Thoughts on the day\'s activities and personal insights.',
-                      Icons.wb_sunny,
-                      Colors.orange.shade100,
-                      Colors.orange,
-                    ),
-                    const SizedBox(height: 12),
-                    _buildJournalItem(
-                      'Kyoto Trip Pictures',
-                      'Linked to: Kyoto Adventure bucket',
-                      Icons.photo_camera,
-                      Colors.purple.shade100,
-                      Colors.purple,
-                    ),
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      _searchQuery = value;
+                    });
+                  },
+                ),
+              ),
+              const SizedBox(height: 20),
+            ],
+
+            // Today section
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Today',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            _buildJournalItem(
+              'Evening Reflections',
+              'Reflections on the day\'s events and personal growth.',
+              Icons.edit,
+              Colors.blue.shade100,
+              Colors.blue,
+            ),
+            const SizedBox(height: 12),
+            _buildJournalItem(
+              'Emotion Tracker',
+              'How are you feeling today? Log your mood.',
+              Icons.emoji_emotions,
+              Colors.pink.shade100,
+              Colors.pink,
+            ),
+
+            const SizedBox(height: 32),
+
+            // Yesterday section
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Yesterday',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            _buildJournalItem(
+              'Morning Musings',
+              'Thoughts on the day\'s activities and personal insights.',
+              Icons.wb_sunny,
+              Colors.orange.shade100,
+              Colors.orange,
+            ),
+            const SizedBox(height: 12),
+            _buildJournalItem(
+              'Kyoto Trip Pictures',
+              'Linked to: Kyoto Adventure bucket',
+              Icons.photo_camera,
+              Colors.purple.shade100,
+              Colors.purple,
+            ),
           ],
         ),
       ),
@@ -155,7 +154,8 @@ class _JournalScreenState extends State<JournalScreen> {
     );
   }
 
-  Widget _buildJournalItem(String title, String subtitle, IconData icon, Color bgColor, Color iconColor) {
+  Widget _buildJournalItem(String title, String subtitle, IconData icon,
+      Color bgColor, Color iconColor) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -243,7 +243,7 @@ class _JournalScreenState extends State<JournalScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-              
+
               // Mood selector
               const Text(
                 'How are you feeling?',
@@ -264,9 +264,9 @@ class _JournalScreenState extends State<JournalScreen> {
                   _buildMoodButton('😄', 5),
                 ],
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // Content field
               const Text(
                 'Write your thoughts',
@@ -293,9 +293,9 @@ class _JournalScreenState extends State<JournalScreen> {
                   ),
                 ),
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // Action buttons
               Row(
                 children: [

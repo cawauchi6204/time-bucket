@@ -5,7 +5,6 @@ enum ExperienceStatus { planned, inProgress, completed }
 class Experience extends Equatable {
   final String id;
   final String bucketId;
-  final String userId;
   final String title;
   final String? description;
   final double estimatedCost;
@@ -20,7 +19,6 @@ class Experience extends Equatable {
   const Experience({
     required this.id,
     required this.bucketId,
-    required this.userId,
     required this.title,
     this.description,
     this.estimatedCost = 0,
@@ -65,7 +63,6 @@ class Experience extends Equatable {
     return {
       'id': id,
       'bucket_id': bucketId,
-      'user_id': userId,
       'title': title,
       'description': description,
       'estimated_cost': estimatedCost,
@@ -83,7 +80,6 @@ class Experience extends Equatable {
     return Experience(
       id: map['id'] as String,
       bucketId: map['bucket_id'] as String,
-      userId: map['user_id'] as String,
       title: map['title'] as String,
       description: map['description'] as String?,
       estimatedCost: (map['estimated_cost'] as num?)?.toDouble() ?? 0,
@@ -105,7 +101,6 @@ class Experience extends Equatable {
   Experience copyWith({
     String? id,
     String? bucketId,
-    String? userId,
     String? title,
     String? description,
     double? estimatedCost,
@@ -120,7 +115,6 @@ class Experience extends Equatable {
     return Experience(
       id: id ?? this.id,
       bucketId: bucketId ?? this.bucketId,
-      userId: userId ?? this.userId,
       title: title ?? this.title,
       description: description ?? this.description,
       estimatedCost: estimatedCost ?? this.estimatedCost,
@@ -138,7 +132,6 @@ class Experience extends Equatable {
   List<Object?> get props => [
         id,
         bucketId,
-        userId,
         title,
         description,
         estimatedCost,

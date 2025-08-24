@@ -9,46 +9,46 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Colors.grey[50],
-        appBar: AppBar(
-          title: const Text(
-            'Home',
-            style: TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: 20,
-            ),
+      backgroundColor: Colors.grey[50],
+      appBar: AppBar(
+        title: const Text(
+          'Home',
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 20,
           ),
-          backgroundColor: Colors.grey[50],
-          elevation: 0,
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.settings, color: Colors.grey),
-              onPressed: () => context.go(AppRoutes.settings),
-            ),
+        ),
+        backgroundColor: Colors.grey[50],
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings, color: Colors.grey),
+            onPressed: () => context.go(AppRoutes.settings),
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // Profile Section
+            _buildProfileSection(context),
+            const SizedBox(height: 32),
+
+            // Life Resource Meter
+            _buildLifeResourceMeter(context),
+            const SizedBox(height: 32),
+
+            // Current Time Buckets
+            _buildCurrentTimeBuckets(context),
+            const SizedBox(height: 32),
+
+            // Recommended Experiences
+            _buildRecommendedExperiences(context),
           ],
         ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // Profile Section
-              _buildProfileSection(context),
-              const SizedBox(height: 32),
-              
-              // Life Resource Meter
-              _buildLifeResourceMeter(context),
-              const SizedBox(height: 32),
-              
-              // Current Time Buckets
-              _buildCurrentTimeBuckets(context),
-              const SizedBox(height: 32),
-              
-              // Recommended Experiences
-              _buildRecommendedExperiences(context),
-            ],
-          ),
-        ),
+      ),
     );
   }
 
@@ -79,7 +79,8 @@ class HomeScreen extends StatelessWidget {
                   errorBuilder: (context, error, stackTrace) {
                     return Container(
                       color: Colors.grey[300],
-                      child: const Icon(Icons.person, size: 60, color: Colors.grey),
+                      child: const Icon(Icons.person,
+                          size: 60, color: Colors.grey),
                     );
                   },
                 ),
@@ -140,16 +141,20 @@ class HomeScreen extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            _buildResourceCard('Health', '85%', Colors.red.shade100, Colors.red),
-            _buildResourceCard('Time', '70%', Colors.blue.shade100, Colors.blue),
-            _buildResourceCard('Money', '60%', Colors.green.shade100, Colors.green),
+            _buildResourceCard(
+                'Health', '85%', Colors.red.shade100, Colors.red),
+            _buildResourceCard(
+                'Time', '70%', Colors.blue.shade100, Colors.blue),
+            _buildResourceCard(
+                'Money', '60%', Colors.green.shade100, Colors.green),
           ],
         ),
       ],
     );
   }
 
-  Widget _buildResourceCard(String title, String percentage, Color bgColor, Color textColor) {
+  Widget _buildResourceCard(
+      String title, String percentage, Color bgColor, Color textColor) {
     return Expanded(
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 4),
@@ -217,7 +222,8 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTimeBucketCard(String title, String subtitle, String timeLeft, Color bgColor, Color progressColor, String imageUrl) {
+  Widget _buildTimeBucketCard(String title, String subtitle, String timeLeft,
+      Color bgColor, Color progressColor, String imageUrl) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -374,7 +380,8 @@ class HomeScreen extends StatelessWidget {
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
                     color: Colors.grey[300],
-                    child: const Icon(Icons.image, size: 40, color: Colors.grey),
+                    child:
+                        const Icon(Icons.image, size: 40, color: Colors.grey),
                   );
                 },
               ),

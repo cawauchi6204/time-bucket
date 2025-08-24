@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../data/models/time_bucket.dart';
 import '../../../data/providers/bucket_provider.dart';
-import '../../../data/providers/user_provider.dart';
 
 class AddBucketScreen extends ConsumerStatefulWidget {
   const AddBucketScreen({super.key});
@@ -18,7 +17,7 @@ class _AddBucketScreenState extends ConsumerState<AddBucketScreen> {
   final _descriptionController = TextEditingController();
   final _startAgeController = TextEditingController();
   final _endAgeController = TextEditingController();
-  
+
   Color _selectedColor = Colors.blue;
   bool _isLoading = false;
 
@@ -72,16 +71,12 @@ class _AddBucketScreenState extends ConsumerState<AddBucketScreen> {
             children: [
               _buildSectionTitle('Bucket Details'),
               const SizedBox(height: 16),
-              
               _buildNameField(),
               const SizedBox(height: 20),
-              
               _buildDescriptionField(),
               const SizedBox(height: 32),
-              
               _buildSectionTitle('Age Range'),
               const SizedBox(height: 16),
-              
               Row(
                 children: [
                   Expanded(child: _buildStartAgeField()),
@@ -90,12 +85,10 @@ class _AddBucketScreenState extends ConsumerState<AddBucketScreen> {
                 ],
               ),
               const SizedBox(height: 32),
-              
               _buildSectionTitle('Color'),
               const SizedBox(height: 16),
               _buildColorSelector(),
               const SizedBox(height: 40),
-              
               _buildSaveButton(),
             ],
           ),
@@ -376,14 +369,8 @@ class _AddBucketScreenState extends ConsumerState<AddBucketScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final currentUser = ref.read(currentUserProvider);
-      if (currentUser == null) {
-        throw Exception('No user logged in');
-      }
-
       final bucket = TimeBucket(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
-        userId: currentUser.id,
         name: _nameController.text.trim(),
         startAge: int.parse(_startAgeController.text),
         endAge: int.parse(_endAgeController.text),
@@ -396,11 +383,11 @@ class _AddBucketScreenState extends ConsumerState<AddBucketScreen> {
         updatedAt: DateTime.now(),
       );
 
-      await ref.read(userBucketsProvider(currentUser.id).notifier).createBucket(bucket);
-      
+      await ref.read(bucketsProvider.notifier).createBucket(bucket);
+
       if (mounted) {
         context.pop();
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Bucket "${bucket.name}" created successfully!'),

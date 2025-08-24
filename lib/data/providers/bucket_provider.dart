@@ -6,19 +6,16 @@ final bucketRepositoryProvider = Provider<BucketRepository>((ref) {
   return BucketRepository();
 });
 
-final userBucketsProvider = AsyncNotifierProvider.family<UserBucketsNotifier, List<TimeBucket>, String>(
-  UserBucketsNotifier.new,
+final bucketsProvider =
+    AsyncNotifierProvider<BucketsNotifier, List<TimeBucket>>(
+  BucketsNotifier.new,
 );
 
-final activeBucketsProvider = AsyncNotifierProvider.family<ActiveBucketsNotifier, List<TimeBucket>, ({String userId, int age})>(
-  ActiveBucketsNotifier.new,
-);
-
-class UserBucketsNotifier extends FamilyAsyncNotifier<List<TimeBucket>, String> {
+class BucketsNotifier extends AsyncNotifier<List<TimeBucket>> {
   @override
-  Future<List<TimeBucket>> build(String arg) async {
+  Future<List<TimeBucket>> build() async {
     final repository = ref.read(bucketRepositoryProvider);
-    return await repository.getUserBuckets(arg);
+    return await repository.getAllBuckets();
   }
 
   Future<void> createBucket(TimeBucket bucket) async {
@@ -43,13 +40,5 @@ class UserBucketsNotifier extends FamilyAsyncNotifier<List<TimeBucket>, String> 
     final repository = ref.read(bucketRepositoryProvider);
     await repository.reorderBuckets(bucketIds);
     ref.invalidateSelf();
-  }
-}
-
-class ActiveBucketsNotifier extends FamilyAsyncNotifier<List<TimeBucket>, ({String userId, int age})> {
-  @override
-  Future<List<TimeBucket>> build(({String userId, int age}) arg) async {
-    final repository = ref.read(bucketRepositoryProvider);
-    return await repository.getActiveBucketsForAge(arg.userId, arg.age);
   }
 }

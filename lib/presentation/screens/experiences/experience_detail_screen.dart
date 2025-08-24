@@ -22,14 +22,15 @@ class ExperienceDetailScreen extends StatelessWidget {
               background: Container(
                 decoration: const BoxDecoration(
                   image: DecorationImage(
-                    image: NetworkImage('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=250&fit=crop'),
+                    image: NetworkImage(
+                        'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=250&fit=crop'),
                     fit: BoxFit.cover,
                   ),
                 ),
               ),
             ),
           ),
-          
+
           // Content section
           SliverToBoxAdapter(
             child: Container(
@@ -60,7 +61,7 @@ class ExperienceDetailScreen extends StatelessWidget {
                             height: 1.5,
                           ),
                         ),
-                        
+
                         // Progress section
                         const SizedBox(height: 32),
                         const Text(
@@ -84,7 +85,8 @@ class ExperienceDetailScreen extends StatelessWidget {
                         LinearProgressIndicator(
                           value: 0.6,
                           backgroundColor: Colors.grey[300],
-                          valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
+                          valueColor:
+                              const AlwaysStoppedAnimation<Color>(Colors.blue),
                           minHeight: 6,
                         ),
                         const SizedBox(height: 8),
@@ -98,16 +100,16 @@ class ExperienceDetailScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  
+
                   // Cost & Savings section
                   _buildCostSavingsSection(),
-                  
+
                   // Memories section
                   _buildMemoriesSection(),
-                  
+
                   // Expert Advice section
                   _buildExpertAdviceSection(),
-                  
+
                   const SizedBox(height: 100),
                 ],
               ),
@@ -218,7 +220,8 @@ class ExperienceDetailScreen extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -298,7 +301,8 @@ class ExperienceDetailScreen extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.grey[300],
                     foregroundColor: Colors.black87,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -386,7 +390,8 @@ class ExperienceDetailScreen extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 
 class TimeBucket extends Equatable {
   final String id;
-  final String userId;
   final String name;
   final int startAge;
   final int endAge;
@@ -15,7 +14,6 @@ class TimeBucket extends Equatable {
 
   const TimeBucket({
     required this.id,
-    required this.userId,
     required this.name,
     required this.startAge,
     required this.endAge,
@@ -44,7 +42,6 @@ class TimeBucket extends Equatable {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'user_id': userId,
       'name': name,
       'start_age': startAge,
       'end_age': endAge,
@@ -59,7 +56,6 @@ class TimeBucket extends Equatable {
   factory TimeBucket.fromMap(Map<String, dynamic> map) {
     return TimeBucket(
       id: map['id'] as String,
-      userId: map['user_id'] as String,
       name: map['name'] as String,
       startAge: map['start_age'] as int,
       endAge: map['end_age'] as int,
@@ -73,7 +69,6 @@ class TimeBucket extends Equatable {
 
   TimeBucket copyWith({
     String? id,
-    String? userId,
     String? name,
     int? startAge,
     int? endAge,
@@ -85,7 +80,6 @@ class TimeBucket extends Equatable {
   }) {
     return TimeBucket(
       id: id ?? this.id,
-      userId: userId ?? this.userId,
       name: name ?? this.name,
       startAge: startAge ?? this.startAge,
       endAge: endAge ?? this.endAge,
@@ -100,7 +94,6 @@ class TimeBucket extends Equatable {
   @override
   List<Object?> get props => [
         id,
-        userId,
         name,
         startAge,
         endAge,

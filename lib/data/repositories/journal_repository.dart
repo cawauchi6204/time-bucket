@@ -151,7 +151,7 @@ class JournalRepository {
     try {
       final db = await _databaseHelper.database;
       final startDate = DateTime.now().subtract(Duration(days: days));
-      
+
       final result = await db.rawQuery('''
         SELECT 
           mood,

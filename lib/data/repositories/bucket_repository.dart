@@ -20,19 +20,17 @@ class BucketRepository {
     }
   }
 
-  Future<List<TimeBucket>> getUserBuckets(String userId) async {
+  Future<List<TimeBucket>> getAllBuckets() async {
     try {
       final db = await _databaseHelper.database;
       final List<Map<String, dynamic>> maps = await db.query(
         'time_buckets',
-        where: 'user_id = ?',
-        whereArgs: [userId],
         orderBy: 'order_index ASC, start_age ASC',
       );
 
       return maps.map((map) => TimeBucket.fromMap(map)).toList();
     } catch (e) {
-      print('Error getting user buckets: $e');
+      print('Error getting buckets: $e');
       return [];
     }
   }
@@ -57,13 +55,13 @@ class BucketRepository {
     }
   }
 
-  Future<List<TimeBucket>> getActiveBucketsForAge(String userId, int age) async {
+  Future<List<TimeBucket>> getActiveBucketsForAge(int age) async {
     try {
       final db = await _databaseHelper.database;
       final List<Map<String, dynamic>> maps = await db.query(
         'time_buckets',
-        where: 'user_id = ? AND start_age <= ? AND end_age >= ?',
-        whereArgs: [userId, age, age],
+        where: 'start_age <= ? AND end_age >= ?',
+        whereArgs: [age, age],
         orderBy: 'order_index ASC',
       );
 
@@ -105,12 +103,11 @@ class BucketRepository {
     }
   }
 
-  Future<int> countUserBuckets(String userId) async {
+  Future<int> countBuckets() async {
     try {
       final db = await _databaseHelper.database;
       final result = await db.rawQuery(
-        'SELECT COUNT(*) as count FROM time_buckets WHERE user_id = ?',
-        [userId],
+        'SELECT COUNT(*) as count FROM time_buckets',
       );
       return result.first['count'] as int? ?? 0;
     } catch (e) {
@@ -123,7 +120,7 @@ class BucketRepository {
     try {
       final db = await _databaseHelper.database;
       final batch = db.batch();
-      
+
       for (int i = 0; i < bucketIds.length; i++) {
         batch.update(
           'time_buckets',
@@ -132,7 +129,7 @@ class BucketRepository {
           whereArgs: [bucketIds[i]],
         );
       }
-      
+
       await batch.commit();
       return true;
     } catch (e) {

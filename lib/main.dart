@@ -7,7 +7,7 @@ import 'config/routes.dart';
 void main() {
   // Enable layout debugging in debug mode
   debugPaintSizeEnabled = false; // Set to true for visual debugging
-  
+
   runApp(const ProviderScope(child: TimeBucketApp()));
 }
 

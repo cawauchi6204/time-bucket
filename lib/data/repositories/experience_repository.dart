@@ -121,11 +121,11 @@ class ExperienceRepository {
         'status': status.name,
         'updated_at': DateTime.now().toIso8601String(),
       };
-      
+
       if (status == ExperienceStatus.completed && completionDate != null) {
         updates['completion_date'] = completionDate.toIso8601String();
       }
-      
+
       final result = await db.update(
         'experiences',
         updates,
