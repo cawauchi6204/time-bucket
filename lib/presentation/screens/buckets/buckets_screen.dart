@@ -6,6 +6,7 @@ import '../../../data/repositories/experience_repository.dart';
 import '../../../data/models/experience.dart';
 import '../../widgets/common/icon_picker.dart';
 import '../../widgets/common/bucket_icon.dart';
+import '../../widgets/cards/hero_bucket_card.dart';
 
 class BucketsScreen extends ConsumerStatefulWidget {
   const BucketsScreen({super.key});
@@ -92,9 +93,17 @@ class _BucketsScreenState extends ConsumerState<BucketsScreen> {
                   padding: const EdgeInsets.all(20),
                   child: Column(
                     children: buckets.map((bucket) {
+                      const currentAge = 28; // TODO: Get from user profile
+                      final isActive = currentAge >= bucket.startAge && currentAge <= bucket.endAge;
+                      
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 16),
-                        child: _buildEnhancedBucketCard(bucket),
+                        child: HeroBucketCard(
+                          bucket: bucket,
+                          experienceCount: 0, // TODO: Get actual count
+                          isActive: isActive,
+                          onTap: () => _showBucketDetails(bucket, []),
+                        ),
                       );
                     }).toList(),
                   ),
@@ -998,16 +1007,31 @@ class _BucketsScreenState extends ConsumerState<BucketsScreen> {
                   final confirmed =
                       await _showDeleteConfirmation(context, bucket.name);
                   if (confirmed && context.mounted) {
-                    await ref
+                    print('BucketsScreen: Attempting to delete bucket: ${bucket.id}');
+                    final success = await ref
                         .read(bucketsProvider.notifier)
                         .deleteBucket(bucket.id);
+                    print('BucketsScreen: Delete success: $success');
 
                     if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('${bucket.name} deleted'),
-                        ),
-                      );
+                      if (success) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('${bucket.name} deleted successfully'),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                        // Force refresh
+                        ref.refresh(bucketsProvider);
+                        print('Buckets screen: Refreshed buckets provider');
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Failed to delete bucket. Please try again.'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
                     }
                   }
                 },

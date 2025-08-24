@@ -45,11 +45,28 @@ class BucketResultCard extends StatelessWidget {
         color: bucket.bucketColor.withOpacity(0.1),
         borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
       ),
-      child: Icon(
-        bucket.iconPath != null ? Icons.star : Icons.access_time,
-        color: bucket.bucketColor,
-        size: 24,
-      ),
+      child: bucket.iconPath != null && bucket.iconPath!.isNotEmpty
+          ? ClipRRect(
+              borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
+              child: Image.network(
+                bucket.iconPath!,
+                width: 48,
+                height: 48,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Icon(
+                    Icons.access_time,
+                    color: bucket.bucketColor,
+                    size: 24,
+                  );
+                },
+              ),
+            )
+          : Icon(
+              Icons.access_time,
+              color: bucket.bucketColor,
+              size: 24,
+            ),
     );
   }
 

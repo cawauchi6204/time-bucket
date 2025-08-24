@@ -30,10 +30,22 @@ class BucketsNotifier extends AsyncNotifier<List<TimeBucket>> {
     ref.invalidateSelf();
   }
 
-  Future<void> deleteBucket(String bucketId) async {
-    final repository = ref.read(bucketRepositoryProvider);
-    await repository.deleteBucket(bucketId);
-    ref.invalidateSelf();
+  Future<bool> deleteBucket(String bucketId) async {
+    try {
+      final repository = ref.read(bucketRepositoryProvider);
+      final success = await repository.deleteBucket(bucketId);
+      print('Delete bucket result: $success for bucketId: $bucketId');
+      if (success) {
+        // Force refresh the state by rebuilding
+        state = const AsyncValue.loading();
+        state = AsyncValue.data(await build());
+      }
+      return success;
+    } catch (e) {
+      print('Error in deleteBucket provider: $e');
+      state = AsyncValue.error(e, StackTrace.current);
+      return false;
+    }
   }
 
   Future<void> reorderBuckets(List<String> bucketIds) async {

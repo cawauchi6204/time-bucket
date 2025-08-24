@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../config/routes.dart';
 import '../../../data/providers/bucket_provider.dart';
 import '../../../data/models/time_bucket.dart';
+import '../../widgets/cards/hero_bucket_card.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -253,14 +254,10 @@ class HomeScreen extends ConsumerWidget {
                 .take(3)
                 .toList();
 
-            return Column(
-              children: relevantBuckets
-                  .map((bucket) => Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: _buildInteractiveBucketCard(
-                            context, ref, bucket, currentAge),
-                      ))
-                  .toList(),
+            return HeroBucketCarousel(
+              buckets: relevantBuckets,
+              currentAge: currentAge,
+              onBucketTap: (bucket) => _openBucketDetails(context, ref, bucket),
             );
           },
         ),
@@ -369,15 +366,36 @@ class HomeScreen extends ConsumerWidget {
                     color: bgColor,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(
-                    isActive
-                        ? Icons.play_circle_fill
-                        : isFuture
-                            ? Icons.schedule
-                            : Icons.check_circle,
-                    color: color,
-                    size: 30,
-                  ),
+                  child: bucket.iconPath != null && bucket.iconPath!.isNotEmpty
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.network(
+                            bucket.iconPath!,
+                            width: 60,
+                            height: 60,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Icon(
+                                isActive
+                                    ? Icons.play_circle_fill
+                                    : isFuture
+                                        ? Icons.schedule
+                                        : Icons.check_circle,
+                                color: color,
+                                size: 30,
+                              );
+                            },
+                          ),
+                        )
+                      : Icon(
+                          isActive
+                              ? Icons.play_circle_fill
+                              : isFuture
+                                  ? Icons.schedule
+                                  : Icons.check_circle,
+                          color: color,
+                          size: 30,
+                        ),
                 ),
                 Positioned(
                   top: -2,
@@ -637,11 +655,34 @@ class HomeScreen extends ConsumerWidget {
               onTap: () async {
                 Navigator.of(context).pop();
                 final confirmed =
-                    await _showDeleteConfirmation(context, bucket.name);
+                    await _showDeleteConfirmation(context, bucket.name, bucket.id);
                 if (confirmed && context.mounted) {
-                  await ref
+                  print('Attempting to delete bucket: ${bucket.id}');
+                  final success = await ref
                       .read(bucketsProvider.notifier)
                       .deleteBucket(bucket.id);
+                  print('Delete success: $success');
+                  
+                  if (context.mounted) {
+                    if (!success) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Failed to delete bucket. Please try again.'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Bucket deleted successfully'),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                      // Force refresh the buckets list
+                      ref.refresh(bucketsProvider);
+                      print('Home screen: Refreshed buckets provider');
+                    }
+                  }
                 }
               },
             ),
@@ -652,12 +693,25 @@ class HomeScreen extends ConsumerWidget {
   }
 
   Future<bool> _showDeleteConfirmation(
-      BuildContext context, String bucketName) async {
+      BuildContext context, String bucketName, String bucketId) async {
     return await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
             title: const Text('Delete Bucket'),
-            content: Text('Are you sure you want to delete "$bucketName"?'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Are you sure you want to delete "$bucketName"?'),
+                const SizedBox(height: 8),
+                Text('ID: $bucketId', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                const SizedBox(height: 8),
+                const Text(
+                  'This action cannot be undone.',
+                  style: TextStyle(fontSize: 12, color: Colors.red),
+                ),
+              ],
+            ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),

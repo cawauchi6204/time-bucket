@@ -90,12 +90,29 @@ class BucketRepository {
 
   Future<bool> deleteBucket(String id) async {
     try {
+      print('BucketRepository: Attempting to delete bucket with id: $id');
       final db = await _databaseHelper.database;
+      
+      // First check if the bucket exists
+      final existingBuckets = await db.query(
+        'time_buckets',
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+      print('BucketRepository: Found ${existingBuckets.length} buckets with id: $id');
+      
+      if (existingBuckets.isEmpty) {
+        print('BucketRepository: Bucket not found');
+        return false;
+      }
+      
+      // Delete the bucket
       final result = await db.delete(
         'time_buckets',
         where: 'id = ?',
         whereArgs: [id],
       );
+      print('BucketRepository: Delete operation affected $result rows');
       return result > 0;
     } catch (e) {
       print('Error deleting bucket: $e');

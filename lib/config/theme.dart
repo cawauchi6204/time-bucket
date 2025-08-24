@@ -225,17 +225,25 @@ class AppTheme {
   static const Duration mediumAnimation = Duration(milliseconds: 400);
   static const Duration longAnimation = Duration(milliseconds: 600);
 
-  // Border radius
+  // Border radius (Skyscanner-style)
   static const double borderRadiusSmall = 8.0;
   static const double borderRadiusMedium = 12.0;
   static const double borderRadiusLarge = 16.0;
+  static const double borderRadiusXL = 20.0;
+  static const double borderRadiusCard = 16.0;
 
   // Spacing
+  static const double spacingXXS = 2.0;
   static const double spacingXS = 4.0;
   static const double spacingS = 8.0;
   static const double spacingM = 16.0;
   static const double spacingL = 24.0;
   static const double spacingXL = 32.0;
+
+  // Card spacing
+  static const double cardPadding = 16.0;
+  static const double cardMargin = 12.0;
+  static const double cardSpacing = 16.0;
 
   // Elevation
   static const double elevationLow = 2.0;

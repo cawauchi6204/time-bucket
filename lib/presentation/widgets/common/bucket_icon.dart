@@ -37,7 +37,28 @@ class BucketIcon extends StatelessWidget {
       }
     }
 
-    // It's a custom image file
+    // Check if it's a network URL
+    if (iconPath!.startsWith('http://') || iconPath!.startsWith('https://')) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(size * 0.15),
+        child: Image.network(
+          iconPath!,
+          width: size,
+          height: size,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            // Fallback to default icon if image loading fails
+            return Icon(
+              fallbackIcon,
+              color: color,
+              size: size,
+            );
+          },
+        ),
+      );
+    }
+
+    // It's a local image file
     return ClipRRect(
       borderRadius: BorderRadius.circular(size * 0.15),
       child: Image.file(
