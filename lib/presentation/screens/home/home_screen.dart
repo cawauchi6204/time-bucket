@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../config/theme.dart';
 import '../../../config/routes.dart';
+import '../../../data/providers/bucket_provider.dart';
+import '../../../data/models/time_bucket.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
@@ -40,8 +42,8 @@ class HomeScreen extends StatelessWidget {
             _buildLifeResourceMeter(context),
             const SizedBox(height: 32),
 
-            // Current Time Buckets
-            _buildCurrentTimeBuckets(context),
+            // My Time Buckets (Object-Oriented)
+            _buildMyTimeBuckets(context, ref),
             const SizedBox(height: 32),
 
             // Recommended Experiences
@@ -188,127 +190,225 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCurrentTimeBuckets(BuildContext context) {
+  Widget _buildMyTimeBuckets(BuildContext context, WidgetRef ref) {
+    final bucketsAsync = ref.watch(bucketsProvider);
+    final currentAge = 28; // TODO: Get from user profile
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Current Time Buckets',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-            color: Colors.black87,
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'My Time Buckets',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
+            ),
+            GestureDetector(
+              onTap: () => _showCreateBucketDialog(context, ref),
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade100,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.add, size: 16, color: Colors.blue.shade700),
+                    const SizedBox(width: 4),
+                    Text(
+                      'New Bucket',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.blue.shade700,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 16),
-        _buildTimeBucketCard(
-          'Career Growth',
-          'Key Goal: Achieve Senior Manager Position',
-          '210 days left',
-          Colors.pink.shade100,
-          Colors.pink,
-          'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=80&h=80&fit=crop',
-        ),
-        const SizedBox(height: 12),
-        _buildTimeBucketCard(
-          'Personal Development',
-          'Key Goal: Learn a New Language',
-          '150 days left',
-          Colors.blue.shade100,
-          Colors.blue,
-          'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=80&h=80&fit=crop',
+        bucketsAsync.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, _) => Center(
+            child: Text('Error loading buckets: $error'),
+          ),
+          data: (buckets) {
+            if (buckets.isEmpty) {
+              return _buildEmptyBucketsState(context, ref);
+            }
+
+            // Filter buckets relevant to current age (current + future)
+            final relevantBuckets = buckets
+                .where((bucket) => bucket.endAge >= currentAge)
+                .take(3)
+                .toList();
+
+            return Column(
+              children: relevantBuckets
+                  .map((bucket) => Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: _buildInteractiveBucketCard(
+                            context, ref, bucket, currentAge),
+                      ))
+                  .toList(),
+            );
+          },
         ),
       ],
     );
   }
 
-  Widget _buildTimeBucketCard(String title, String subtitle, String timeLeft,
-      Color bgColor, Color progressColor, String imageUrl) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildInteractiveBucketCard(
+      BuildContext context, WidgetRef ref, TimeBucket bucket, int currentAge) {
+    final color = Color(
+        int.parse(bucket.color?.replaceFirst('#', '0xFF') ?? '0xFF2196F3'));
+    final bgColor = color.withOpacity(0.1);
+    final isActive =
+        currentAge >= bucket.startAge && currentAge <= bucket.endAge;
+    final isFuture = currentAge < bucket.startAge;
+
+    String status;
+    if (isActive) {
+      status = 'Active Now';
+    } else if (isFuture) {
+      final yearsUntil = bucket.startAge - currentAge;
+      status = 'Starts in $yearsUntil year${yearsUntil > 1 ? 's' : ''}';
+    } else {
+      status = 'Completed';
+    }
+
+    return GestureDetector(
+      onTap: () => _openBucketDetails(context, ref, bucket),
+      onLongPress: () => _showBucketContextMenu(context, ref, bucket),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: isActive ? Border.all(color: color, width: 2) : null,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(isActive ? 0.1 : 0.05),
+              blurRadius: isActive ? 15 : 10,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    bucket.name,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: isActive ? color : Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Ages ${bucket.startAge}-${bucket.endAge}',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  if (bucket.description != null &&
+                      bucket.description!.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      bucket.description!,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Colors.black54,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                  const SizedBox(height: 12),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: isActive ? color.withOpacity(0.2) : bgColor,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      status,
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: isActive ? color : Colors.grey.shade600,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 16),
+            Stack(
               children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
+                Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    color: bgColor,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    isActive
+                        ? Icons.play_circle_fill
+                        : isFuture
+                            ? Icons.schedule
+                            : Icons.check_circle,
+                    color: color,
+                    size: 30,
                   ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                const Text(
-                  'Progress',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.black54,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                LinearProgressIndicator(
-                  value: 0.7,
-                  backgroundColor: Colors.grey.shade200,
-                  valueColor: AlwaysStoppedAnimation<Color>(progressColor),
-                  minHeight: 4,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  timeLeft,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey,
+                Positioned(
+                  top: -2,
+                  right: -2,
+                  child: GestureDetector(
+                    onTap: () => _showBucketContextMenu(context, ref, bucket),
+                    child: Container(
+                      width: 24,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 4,
+                          ),
+                        ],
+                      ),
+                      child: Icon(
+                        Icons.more_vert,
+                        size: 14,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
                   ),
                 ),
               ],
             ),
-          ),
-          const SizedBox(width: 16),
-          Container(
-            width: 60,
-            height: 60,
-            decoration: BoxDecoration(
-              color: bgColor,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Image.network(
-                imageUrl,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    color: bgColor,
-                    child: Icon(Icons.work, color: progressColor, size: 30),
-                  );
-                },
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -349,6 +449,69 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildEmptyBucketsState(BuildContext context, WidgetRef ref) {
+    return Container(
+      padding: const EdgeInsets.all(32),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Icon(
+            Icons.folder_open,
+            size: 48,
+            color: Colors.grey.shade400,
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'No Time Buckets Yet',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Create your first time bucket to organize your life experiences',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey,
+            ),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () => _showCreateBucketDialog(context, ref),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            ),
+            child: const Text(
+              'Create First Bucket',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -405,5 +568,114 @@ class HomeScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  void _openBucketDetails(
+      BuildContext context, WidgetRef ref, TimeBucket bucket) {
+    // TODO: Navigate to bucket detail screen or show modal
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(bucket.name),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Ages: ${bucket.startAge}-${bucket.endAge}'),
+            if (bucket.description != null) ...[
+              const SizedBox(height: 8),
+              Text(bucket.description!),
+            ],
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showBucketContextMenu(
+      BuildContext context, WidgetRef ref, TimeBucket bucket) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.visibility),
+              title: const Text('View Details'),
+              onTap: () {
+                Navigator.of(context).pop();
+                _openBucketDetails(context, ref, bucket);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.edit),
+              title: const Text('Edit Bucket'),
+              onTap: () {
+                Navigator.of(context).pop();
+                // TODO: Show edit bucket dialog
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.add),
+              title: const Text('Add Experience'),
+              onTap: () {
+                Navigator.of(context).pop();
+                // TODO: Show add experience dialog for this bucket
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete, color: Colors.red),
+              title: const Text('Delete Bucket',
+                  style: TextStyle(color: Colors.red)),
+              onTap: () async {
+                Navigator.of(context).pop();
+                final confirmed =
+                    await _showDeleteConfirmation(context, bucket.name);
+                if (confirmed && context.mounted) {
+                  await ref
+                      .read(bucketsProvider.notifier)
+                      .deleteBucket(bucket.id);
+                }
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<bool> _showDeleteConfirmation(
+      BuildContext context, String bucketName) async {
+    return await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Delete Bucket'),
+            content: Text('Are you sure you want to delete "$bucketName"?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                style: TextButton.styleFrom(foregroundColor: Colors.red),
+                child: const Text('Delete'),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+  }
+
+  void _showCreateBucketDialog(BuildContext context, WidgetRef ref) {
+    // Navigate to buckets screen where inline creation is available
+    context.go(AppRoutes.buckets);
   }
 }

@@ -2,18 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../presentation/screens/home/home_screen.dart';
 import '../presentation/screens/buckets/buckets_screen.dart';
-import '../presentation/screens/buckets/add_bucket_screen.dart';
 import '../presentation/screens/experiences/experiences_screen.dart';
-import '../presentation/screens/experiences/add_experience_screen.dart';
 import '../presentation/screens/journal/journal_screen.dart';
 import '../presentation/screens/settings/settings_screen.dart';
 
 class AppRoutes {
   static const String home = '/';
   static const String buckets = '/buckets';
-  static const String addBucket = '/buckets/add';
   static const String experiences = '/experiences';
-  static const String addExperience = '/experiences/add';
   static const String journal = '/journal';
   static const String settings = '/settings';
 }
@@ -59,42 +55,8 @@ class AppRouter {
           ),
         ],
       ),
-      GoRoute(
-        parentNavigatorKey: _rootNavigatorKey,
-        path: AppRoutes.addBucket,
-        name: 'add-bucket',
-        pageBuilder: (context, state) => _fadeTransition(
-          key: state.pageKey,
-          child: const AddBucketScreen(),
-        ),
-      ),
-      GoRoute(
-        parentNavigatorKey: _rootNavigatorKey,
-        path: AppRoutes.addExperience,
-        name: 'add-experience',
-        pageBuilder: (context, state) => _fadeTransition(
-          key: state.pageKey,
-          child: const AddExperienceScreen(),
-        ),
-      ),
     ],
   );
-
-  static Page<void> _fadeTransition({
-    required LocalKey key,
-    required Widget child,
-  }) {
-    return CustomTransitionPage(
-      key: key,
-      child: child,
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        return FadeTransition(
-          opacity: animation,
-          child: child,
-        );
-      },
-    );
-  }
 
   static GoRouter get router => _router;
 }
