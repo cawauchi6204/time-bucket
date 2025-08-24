@@ -32,13 +32,17 @@ class BucketsNotifier extends AsyncNotifier<List<TimeBucket>> {
 
   Future<bool> deleteBucket(String bucketId) async {
     try {
+      print('BucketsNotifier: Starting delete process for bucket: $bucketId');
       final repository = ref.read(bucketRepositoryProvider);
       final success = await repository.deleteBucket(bucketId);
-      print('Delete bucket result: $success for bucketId: $bucketId');
+      print('BucketsNotifier: Delete result: $success for bucketId: $bucketId');
+      
       if (success) {
-        // Force refresh the state by rebuilding
-        state = const AsyncValue.loading();
-        state = AsyncValue.data(await build());
+        print('BucketsNotifier: Refreshing bucket list after successful deletion');
+        // Use invalidateSelf to trigger a complete rebuild
+        ref.invalidateSelf();
+      } else {
+        print('BucketsNotifier: Delete failed, not refreshing state');
       }
       return success;
     } catch (e) {

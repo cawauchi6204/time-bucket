@@ -60,10 +60,27 @@ class HeroBucketCard extends StatelessWidget {
     final imagePath = bucket.iconPath ?? backgroundImageUrl;
     
     if (imagePath != null && imagePath.isNotEmpty) {
+      // アイコン形式（icon:codePoint）の場合は背景画像として使わない
+      if (imagePath.startsWith('icon:')) {
+        return _buildDefaultBackground();
+      }
+      
       // ネットワークURLかローカルファイルパスかを判断
       if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
         return Positioned.fill(
           child: Image.network(
+            imagePath,
+            fit: BoxFit.cover,
+            filterQuality: FilterQuality.high,
+            errorBuilder: (context, error, stackTrace) {
+              return _buildDefaultBackground();
+            },
+          ),
+        );
+      } else if (imagePath.startsWith('assets/')) {
+        // アセットファイルの場合
+        return Positioned.fill(
+          child: Image.asset(
             imagePath,
             fit: BoxFit.cover,
             filterQuality: FilterQuality.high,

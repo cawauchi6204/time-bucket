@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'dart:io';
 import '../../../config/routes.dart';
 import '../../../data/providers/bucket_provider.dart';
 import '../../../data/models/time_bucket.dart';
@@ -366,26 +367,62 @@ class HomeScreen extends ConsumerWidget {
                     color: bgColor,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: bucket.iconPath != null && bucket.iconPath!.isNotEmpty
+                  child: bucket.iconPath != null && bucket.iconPath!.isNotEmpty && !bucket.iconPath!.startsWith('icon:')
                       ? ClipRRect(
                           borderRadius: BorderRadius.circular(12),
-                          child: Image.network(
-                            bucket.iconPath!,
-                            width: 60,
-                            height: 60,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Icon(
-                                isActive
-                                    ? Icons.play_circle_fill
-                                    : isFuture
-                                        ? Icons.schedule
-                                        : Icons.check_circle,
-                                color: color,
-                                size: 30,
-                              );
-                            },
-                          ),
+                          child: bucket.iconPath!.startsWith('http://') || bucket.iconPath!.startsWith('https://')
+                              ? Image.network(
+                                  bucket.iconPath!,
+                                  width: 60,
+                                  height: 60,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Icon(
+                                      isActive
+                                          ? Icons.play_circle_fill
+                                          : isFuture
+                                              ? Icons.schedule
+                                              : Icons.check_circle,
+                                      color: color,
+                                      size: 30,
+                                    );
+                                  },
+                                )
+                              : bucket.iconPath!.startsWith('assets/')
+                                  ? Image.asset(
+                                      bucket.iconPath!,
+                                      width: 60,
+                                      height: 60,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (context, error, stackTrace) {
+                                        return Icon(
+                                          isActive
+                                              ? Icons.play_circle_fill
+                                              : isFuture
+                                                  ? Icons.schedule
+                                                  : Icons.check_circle,
+                                          color: color,
+                                          size: 30,
+                                        );
+                                      },
+                                    )
+                                  : Image.file(
+                                      File(bucket.iconPath!),
+                                      width: 60,
+                                      height: 60,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (context, error, stackTrace) {
+                                        return Icon(
+                                          isActive
+                                              ? Icons.play_circle_fill
+                                              : isFuture
+                                                  ? Icons.schedule
+                                                  : Icons.check_circle,
+                                          color: color,
+                                          size: 30,
+                                        );
+                                      },
+                                    ),
                         )
                       : Icon(
                           isActive

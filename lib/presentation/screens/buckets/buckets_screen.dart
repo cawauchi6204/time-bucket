@@ -815,6 +815,75 @@ class _BucketsScreenState extends ConsumerState<BucketsScreen> {
                               ],
                             ),
                           ),
+                          PopupMenuButton<String>(
+                            onSelected: (value) async {
+                              if (value == 'edit') {
+                                Navigator.pop(context);
+                                // TODO: Implement edit bucket dialog
+                              } else if (value == 'delete') {
+                                Navigator.pop(context);
+                                final confirmed = await _showDeleteConfirmation(context, bucket.name);
+                                if (confirmed && context.mounted) {
+                                  print('UI: User confirmed deletion of bucket: ${bucket.name}');
+                                  
+                                  try {
+                                    final success = await ref
+                                        .read(bucketsProvider.notifier)
+                                        .deleteBucket(bucket.id);
+                                    
+                                    print('UI: Delete operation completed with success: $success');
+                                    
+                                    if (context.mounted) {
+                                      if (!success) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(
+                                            content: Text('Failed to delete bucket. Please try again.'),
+                                            backgroundColor: Colors.red,
+                                          ),
+                                        );
+                                      } else {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: Text('Bucket "${bucket.name}" deleted successfully'),
+                                            backgroundColor: Colors.green,
+                                          ),
+                                        );
+                                      }
+                                    }
+                                  } catch (e) {
+                                    print('UI: Exception during deletion: $e');
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text('Error deleting bucket: $e'),
+                                          backgroundColor: Colors.red,
+                                        ),
+                                      );
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            itemBuilder: (context) => [
+                              const PopupMenuItem<String>(
+                                value: 'edit',
+                                child: ListTile(
+                                  leading: Icon(Icons.edit, size: 20),
+                                  title: Text('Edit Bucket'),
+                                  contentPadding: EdgeInsets.zero,
+                                ),
+                              ),
+                              const PopupMenuItem<String>(
+                                value: 'delete',
+                                child: ListTile(
+                                  leading: Icon(Icons.delete, color: Colors.red, size: 20),
+                                  title: Text('Delete Bucket', style: TextStyle(color: Colors.red)),
+                                  contentPadding: EdgeInsets.zero,
+                                ),
+                              ),
+                            ],
+                            icon: const Icon(Icons.more_vert, color: Colors.grey),
+                          ),
                         ],
                       ),
                       if (bucket.description != null &&

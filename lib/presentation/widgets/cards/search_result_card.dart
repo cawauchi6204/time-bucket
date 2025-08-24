@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
 import '../../../config/theme.dart';
 import '../../../data/models/time_bucket.dart';
 import '../../../data/models/experience.dart';
@@ -45,22 +46,50 @@ class BucketResultCard extends StatelessWidget {
         color: bucket.bucketColor.withOpacity(0.1),
         borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
       ),
-      child: bucket.iconPath != null && bucket.iconPath!.isNotEmpty
+      child: bucket.iconPath != null && bucket.iconPath!.isNotEmpty && !bucket.iconPath!.startsWith('icon:')
           ? ClipRRect(
               borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
-              child: Image.network(
-                bucket.iconPath!,
-                width: 48,
-                height: 48,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Icon(
-                    Icons.access_time,
-                    color: bucket.bucketColor,
-                    size: 24,
-                  );
-                },
-              ),
+              child: bucket.iconPath!.startsWith('http://') || bucket.iconPath!.startsWith('https://')
+                  ? Image.network(
+                      bucket.iconPath!,
+                      width: 48,
+                      height: 48,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Icon(
+                          Icons.access_time,
+                          color: bucket.bucketColor,
+                          size: 24,
+                        );
+                      },
+                    )
+                  : bucket.iconPath!.startsWith('assets/')
+                      ? Image.asset(
+                          bucket.iconPath!,
+                          width: 48,
+                          height: 48,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Icon(
+                              Icons.access_time,
+                              color: bucket.bucketColor,
+                              size: 24,
+                            );
+                          },
+                        )
+                      : Image.file(
+                          File(bucket.iconPath!),
+                          width: 48,
+                          height: 48,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Icon(
+                              Icons.access_time,
+                              color: bucket.bucketColor,
+                              size: 24,
+                            );
+                          },
+                        ),
             )
           : Icon(
               Icons.access_time,

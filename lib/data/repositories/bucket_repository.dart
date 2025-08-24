@@ -106,14 +106,39 @@ class BucketRepository {
         return false;
       }
       
-      // Delete the bucket
-      final result = await db.delete(
-        'time_buckets',
-        where: 'id = ?',
-        whereArgs: [id],
-      );
-      print('BucketRepository: Delete operation affected $result rows');
-      return result > 0;
+      // Use transaction to ensure atomicity
+      return await _databaseHelper.transaction<bool>((txn) async {
+        // First delete related experiences
+        final experiencesDeleted = await txn.delete(
+          'experiences',
+          where: 'bucket_id = ?',
+          whereArgs: [id],
+        );
+        print('BucketRepository: Deleted $experiencesDeleted related experiences');
+        
+        // Then delete related journal entries
+        final journalDeleted = await txn.update(
+          'journal_entries',
+          {'bucket_id': null},
+          where: 'bucket_id = ?',
+          whereArgs: [id],
+        );
+        print('BucketRepository: Updated $journalDeleted journal entries');
+        
+        // Finally delete the bucket
+        final result = await txn.delete(
+          'time_buckets',
+          where: 'id = ?',
+          whereArgs: [id],
+        );
+        print('BucketRepository: Delete operation affected $result rows');
+        
+        if (result <= 0) {
+          throw Exception('Failed to delete bucket - no rows affected');
+        }
+        
+        return true;
+      });
     } catch (e) {
       print('Error deleting bucket: $e');
       return false;
